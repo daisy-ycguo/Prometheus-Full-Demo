@@ -68,4 +68,21 @@ The `Alert-Manager` listens on HTTP port `9093` by default.
 
 go to `/etc/prometheus/prometheus.yml` to enable talking to `Alert-Manager`.
 
+```
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: ["127.0.0.1:9093"]
+```
+
+> 10. Trigger alert:
+
+```
+# start webhook server
+node webhook_server.js
+# stress cpu to get high usage
+stress --cpu $(nproc) --timeout 90 &
+```
+
 Next: [Demo 7 - Install Grafana as a Service](../../demo07/install-grafana-as-service/README.md)

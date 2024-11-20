@@ -1,40 +1,32 @@
-  groups:
-  - name: low-space-check-rule
+groups:
+  - name: demo_alerts
     rules:
-      - alert: LowDiskSpace
-        expr: 100 * node_filesystem_free_bytes{job="prometheus-ec2"} / node_filesystem_size_bytes{job="prometheus-ec2"} < 10
+      # Alert for high CPU usage
+      - alert: HighCPUUsage
+        expr: sum(rate(node_cpu_seconds_total{mode="user"}[30s])) / count(node_cpu_seconds_total{mode="user"}) > 0.5
+        for: 1m
         labels:
           severity: warning
-          environment: prod
-  - name: low-space-check-alert
-    interval: 15s
-    rules:
-      - record: node_network_receive_bytes_rate
-        expr: rate(node_network_receive_bytes_total{job="prometheus-ec2"}[2m])
-      - record: node_network_receive_bytes_rate_avg
-        expr: avg by(instance) (node_network_receive_bytes_rate)
-      - record: node_filesystem_free_percent
-        expr: 100 * node_filesystem_free_bytes{job="prometheus-ec2"} / node_filesystem_size_bytes{job="prometheus-ec2"}        
-      - alert: HostOutOfMemory
-  # for testing cases will make it < 95 instead of < 10
-        expr: node_filesystem_free_percent < 95
-        labels:
-          severity: warning
-          environment: prod
         annotations:
-          description: "node {{.Labels.instance}} is seeing high memory usage on the mount point of {{.Labels.mountpoint}}, currently available memory: {{.Value}}%"
-  - name: nodejsApp
-    rules:
-      - record: job:up
-        expr: up{job="NodeJs-App"}
-      - alert: nodejsAppDown
-        expr: job:up == 0
-        for: 10s # will fire allert if it is down for 5 min
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 1 minute."
+
+      # Alert for low available memory
+      - alert: LowAvailableMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.2
+        for: 1m
         labels:
           severity: critical
         annotations:
-          description: "yalahwy l app ely esmo {{ .Labels.job }} is down w l value b {{ .Value }}"
-  - name: nodeexporter
-    rules:
-      - record: cpu:seconds
-        expr: node_cpu_seconds_total{job="prometheus-ec2-metrics"}
+          summary: "Low memory available"
+          description: "Available memory is below 20%."
+
+      # Alert for container high memory usage
+      - alert: ContainerHighMemory
+        expr: sum(rate(container_memory_usage_bytes[1m])) by (container_name) > 500000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.container_name }} is using high memory"
+          description: "Memory usage exceeds 500MB for container {{ $labels.container_name }}."

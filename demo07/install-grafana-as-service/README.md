@@ -29,8 +29,11 @@ sudo apt-get -y install grafana
 
 > 4. Start `Grafana` service.:
 ```
-sudo systemctl enable --now grafana-server
+# sudo systemctl enable --now grafana-server
+sudo systemctl start grafana-server
 ```
-The `Grafana` listens on HTTP port `3000` by default.
+
+> 5. Login to `Grafana`:
+The `Grafana` listens on HTTP port `3000` by default. Go to "http://localhost:3000" and login with "admin:admin".
 
 Next: [Demo 8 - Install Grafana as a Service](../../demo08/montring-k8s-cluster/README.md)

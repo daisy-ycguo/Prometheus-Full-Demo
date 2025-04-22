@@ -67,6 +67,25 @@ sudo systemctl status prometheus
 
 sudo systemctl enable prometheus
 ```
-The `Prometheus` listens on HTTP port `9090` by default.
+The `Prometheus` listens on HTTP port `9090` by default. You can verify by accessing "http://localhost:9090" from web browser.
+
+> 10. config Prometheus service to listen to any IP address
+```
+sudo vi /etc/systemd/system/prometheus.service
+```
+add below booting parameter for Prometheus:
+```
+ExecStart=/usr/local/bin/prometheus \
+--config.file /etc/prometheus/prometheus.yml \
+--storage.tsdb.path /var/lib/prometheus/ \
+--web.console.templates=/etc/prometheus/consoles \
+--web.console.libraries=/etc/prometheus/console_libraries \
+--web.listen-address="0.0.0.0:9090"
+```
+and then reload Prometheus service:
+```
+sudo systemctl daemon-reload
+sudo systemctl restart prometheus
+```
 
 Next: [Demo 2 - Install Node Exporter as a Service](../../demo02/node-exporter/README.md)
